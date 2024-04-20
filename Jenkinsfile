@@ -1,4 +1,4 @@
- pipeline {
+pipeline {
     agent any
 
     stages {
@@ -11,13 +11,12 @@
         stage("Test") {
             steps {
                 script {
-                    try {
-                        sh 'sudo apt update && sudo apt install -y npm'
-                        sh 'npm test'
-                    } catch (err) {
-                        echo "Error occurred during testing: ${err}"
-                        currentBuild.result = 'FAILURE'
-                    }
+                    // Install npm if not already installed
+                    sh 'sudo apt update'
+                    sh 'sudo apt install -y npm'
+
+                    // Run npm test
+                    sh 'npm test'
                 }
             }
         }
@@ -25,14 +24,15 @@
         stage("Build") {
             steps {
                 script {
-                    try {
+                    // Navigate to the directory containing package.json
+                    dir("${WORKSPACE}") {
+                        // Run npm build
+                        sh 'npm install'
                         sh 'npm run build'
-                    } catch (err) {
-                        echo "Error occurred during build: ${err}"
-                        currentBuild.result = 'FAILURE'
                     }
                 }
             }
         }
     }
 }
+
