@@ -1,24 +1,32 @@
-pipeline{
-  agent any
-  stages{
-    stage("checkout"){
-      steps{
-        checkout scm
-      }
-    }
+pipeline {
+    agent any
 
-    stage("Test"){
-      steps{
-        sh 'sudo apt install npm'
-        sh 'npm test'
-        
-      }
-    }
+    stages {
+        stage("Checkout") {
+            steps {
+                checkout scm
+            }
+        }
 
-    stage("Build"){
-      steps{
-        sh 'npm run build'
-      }
+        stage("Test") {
+            steps {
+                script {
+                    // Install npm if it's not already installed
+                    sh 'sudo apt update && sudo apt install -y npm'
+
+                    // Run npm test
+                    sh 'npm test'
+                }
+            }
+        }
+
+        stage("Build") {
+            steps {
+                script {
+                    // Run npm build
+                    sh 'npm run build'
+                }
+            }
+        }
     }
-  }
 }
