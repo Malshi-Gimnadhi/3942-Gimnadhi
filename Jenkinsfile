@@ -11,11 +11,13 @@ pipeline {
         stage("Test") {
             steps {
                 script {
-                    // Install npm if it's not already installed
-                    sh 'sudo apt update && sudo apt install -y npm'
-
-                    // Run npm test
-                    sh 'npm test'
+                    try {
+                        sh 'sudo apt update && sudo apt install -y npm'
+                        sh 'npm test'
+                    } catch (err) {
+                        echo "Error occurred during testing: ${err}"
+                        currentBuild.result = 'FAILURE'
+                    }
                 }
             }
         }
@@ -23,10 +25,15 @@ pipeline {
         stage("Build") {
             steps {
                 script {
-                    // Run npm build
-                    sh 'npm run build'
+                    try {
+                        sh 'npm run build'
+                    } catch (err) {
+                        echo "Error occurred during build: ${err}"
+                        currentBuild.result = 'FAILURE'
+                    }
                 }
             }
         }
     }
 }
+
