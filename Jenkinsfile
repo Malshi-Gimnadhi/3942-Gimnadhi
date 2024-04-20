@@ -12,7 +12,11 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'sudo apt update && sudo apt install -y npm'
+                        // Update apt and install npm without sudo
+                        sh 'sudo -S apt update < /dev/null'
+                        sh 'sudo -S apt install -y npm < /dev/null'
+                        
+                        // Run npm test
                         sh 'npm test'
                     } catch (err) {
                         echo "Error occurred during testing: ${err}"
@@ -26,7 +30,12 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh 'npm run build'
+                        // Navigate to the directory containing package.json
+                        dir("${WORKSPACE}") {
+                            // Run npm build
+                            sh 'npm install'
+                            sh 'npm run build'
+                        }
                     } catch (err) {
                         echo "Error occurred during build: ${err}"
                         currentBuild.result = 'FAILURE'
@@ -36,3 +45,4 @@ pipeline {
         }
     }
 }
+
