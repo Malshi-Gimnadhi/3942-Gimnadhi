@@ -1,12 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        // Define environment variables if needed
-        PATH = "/usr/local/bin:$PATH" // Ensure npm is accessible
-        HOME = "${WORKSPACE}" // Set the home directory
-    }
-
     stages {
         stage("Checkout") {
             steps {
@@ -17,11 +11,13 @@ pipeline {
         stage("Test") {
             steps {
                 script {
-                    // Install npm dependencies
-                    sh 'npm install'
-
-                    // Run npm test
-                    sh 'npm test'
+                    try {
+                        sh 'sudo apt update && sudo apt install -y npm'
+                        sh 'npm test'
+                    } catch (err) {
+                        echo "Error occurred during testing: ${err}"
+                        currentBuild.result = 'FAILURE'
+                    }
                 }
             }
         }
@@ -29,11 +25,14 @@ pipeline {
         stage("Build") {
             steps {
                 script {
-                    // Run npm build
-                    sh 'npm run build'
+                    try {
+                        sh 'npm run build'
+                    } catch (err) {
+                        echo "Error occurred during build: ${err}"
+                        currentBuild.result = 'FAILURE'
+                    }
                 }
             }
         }
     }
 }
-
