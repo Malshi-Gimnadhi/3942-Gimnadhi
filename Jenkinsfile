@@ -1,6 +1,12 @@
 pipeline {
     agent any
 
+    environment {
+        // Define environment variables if needed
+        PATH = "/usr/local/bin:$PATH" // Ensure npm is accessible
+        HOME = "${WORKSPACE}" // Set the home directory
+    }
+
     stages {
         stage("Checkout") {
             steps {
@@ -11,9 +17,8 @@ pipeline {
         stage("Test") {
             steps {
                 script {
-                    // Install npm if not already installed
-                    sh 'sudo apt update'
-                    sh 'sudo apt install -y npm'
+                    // Install npm dependencies
+                    sh 'npm install'
 
                     // Run npm test
                     sh 'npm test'
@@ -24,15 +29,10 @@ pipeline {
         stage("Build") {
             steps {
                 script {
-                    // Navigate to the directory containing package.json
-                    dir("${WORKSPACE}") {
-                        // Run npm build
-                        sh 'npm install'
-                        sh 'npm run build'
-                    }
+                    // Run npm build
+                    sh 'npm run build'
                 }
             }
         }
     }
 }
-
